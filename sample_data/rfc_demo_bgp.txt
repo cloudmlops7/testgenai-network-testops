@@ -1,0 +1,11 @@
+BGP Session Establishment
+
+A BGP speaker initiates a session with a peer. The peer must validate the received session parameters before the session can become established. Invalid parameters must not result in an established session.
+
+Session State
+
+The BGP session progresses through protocol states and reaches Established only after successful negotiation. A session that cannot complete negotiation must not be treated as Established.
+
+Operational Testing
+
+Test implementations should verify successful establishment, rejection of invalid parameters, and correct state transition behavior.
