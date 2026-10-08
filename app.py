@@ -108,14 +108,39 @@ if input_mode == "User Story / Requirements":
 
 elif input_mode == "Document / RFC":
     if analysis and analysis["requirements"]:
-        detected = analysis.get("primary_protocol") or (analysis["protocols"][0] if analysis.get("protocols") else "Network Protocol")
+        detected = analysis.get("primary_protocol") or (
+            analysis["protocols"][0]
+            if analysis.get("protocols")
+            else "Network Protocol"
+        )
+
         manual_feature = f"{detected} Document Validation"
-        manual_story = "Generate network protocol validation coverage from the uploaded technical documents and RFC requirements."
-        manual_acceptance = "\n".join(f"{i}. {r['statement']}" for i, r in enumerate(analysis["requirements"][:20], 1))
+
+        manual_story = (
+            "Generate network protocol validation coverage from the "
+            "uploaded technical documents and RFC requirements."
+        )
+
+        # Document/RFC mode uses REQ-* identifiers directly.
+        # Do NOT convert RFC requirements into AC-001, AC-002, etc.
+        manual_acceptance = (
+            "Validate the extracted normative requirements from the "
+            "selected document/RFC. Test cases must trace back to the "
+            "applicable REQ-* document requirement IDs."
+        )
+
         manual_domain = f"Networking / {detected}"
-        st.success("Requirements are being supplied automatically from the analyzed documents. No manual user story or acceptance criteria are required.")
+
+        st.success(
+            "Requirements are being supplied automatically from the analyzed "
+            "documents. RFC requirements retain their REQ-* identifiers."
+        )
     else:
-        st.info("Upload and index an RFC/technical document, then click **Analyze Documents**. The feature, requirement and acceptance criteria fields will be derived automatically.")
+        st.info(
+            "Upload and index an RFC/technical document, then click "
+            "**Analyze Documents**. The feature, requirement and acceptance "
+            "criteria fields will be derived automatically."
+        )
         manual_feature = "Document Validation"
         manual_story = ""
         manual_acceptance = ""
@@ -246,11 +271,86 @@ if generate:
         st.write(f"**Evidence:** {', '.join(p.evidence_refs) if p.evidence_refs else 'No direct source citation'}")
 
     with tabs[4]:
-        st.metric("Acceptance Criteria", len(result.traceability))
-        covered=sum(1 for x in result.traceability if x.covered)
-        st.metric("Acceptance-Criteria Coverage", f"{round((covered/len(result.traceability))*100,1) if result.traceability else 0}%")
-        st.dataframe([{"Requirement":x.requirement_id,"Acceptance Criteria":x.acceptance_criterion,"Covered":x.covered,"Test Cases":", ".join(x.test_case_ids),"Gap":x.gap} for x in result.traceability], use_container_width=True)
-        for gap in result.gaps: st.warning(gap)
+        if input_mode == "Document / RFC" and analysis and analysis["requirements"]:
+            st.metric(
+                "Document Requirements",
+                len(result.traceability),
+            )
+
+            covered = sum(
+                1 for x in result.traceability
+                if x.covered
+            )
+
+            coverage = (
+                round(
+                    (covered / len(result.traceability)) * 100,
+                    1,
+                )
+                if result.traceability
+                else 0
+            )
+
+            st.metric(
+                "Document Requirement Coverage",
+                f"{coverage}%",
+            )
+
+            st.dataframe(
+                [
+                    {
+                        "Requirement": x.requirement_id,
+                        "Document Requirement": x.acceptance_criterion,
+                        "Covered": x.covered,
+                        "Test Cases": ", ".join(x.test_case_ids),
+                        "Gap": x.gap,
+                    }
+                    for x in result.traceability
+                ],
+                use_container_width=True,
+            )
+
+        else:
+            st.metric(
+                "Acceptance Criteria",
+                len(result.traceability),
+            )
+
+            covered = sum(
+                1 for x in result.traceability
+                if x.covered
+            )
+
+            coverage = (
+                round(
+                    (covered / len(result.traceability)) * 100,
+                    1,
+                )
+                if result.traceability
+                else 0
+            )
+
+            st.metric(
+                "Acceptance-Criteria Coverage",
+                f"{coverage}%",
+            )
+
+            st.dataframe(
+                [
+                    {
+                        "Requirement": x.requirement_id,
+                        "Acceptance Criteria": x.acceptance_criterion,
+                        "Covered": x.covered,
+                        "Test Cases": ", ".join(x.test_case_ids),
+                        "Gap": x.gap,
+                    }
+                    for x in result.traceability
+                ],
+                use_container_width=True,
+            )
+
+        for gap in result.gaps:
+            st.warning(gap)
 
     with tabs[5]:
         if refs:

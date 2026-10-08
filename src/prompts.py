@@ -45,16 +45,19 @@ RETRIEVED KNOWLEDGE FROM RFCs / TECHNICAL DOCUMENTS:
 Rules:
 1. Generate 5-10 concise test cases when the request supports that many; otherwise generate enough to cover the acceptance criteria and requested test types.
 2. Generate at least one test case for EVERY requested test type. Do not silently collapse different requested types into Functional.
-3. Map each case to AC-001, AC-002, etc. where applicable.
-4. Where a test is driven by an extracted document requirement, use its REQ-... identifier in the requirement_id field only if the schema permits it; otherwise map to the closest AC and cite the requirement in evidence.
-5. Use ONLY requested test types.
-6. Keep each test to 2-5 steps and 1-3 expected results.
-7. Evidence references must be taken only from the supplied document requirements or SOURCE-N context.
-8. Set topology only when explicitly provided or directly supported by evidence; otherwise return an empty string.
-9. Never emit null items inside arrays.
-10. Preserve normative strength exactly: MUST/MUST NOT/SHOULD/SHOULD NOT/MAY are not interchangeable.
-11. If no retrieved knowledge supports a detail, do not invent it.
-12. Return ONLY JSON matching the supplied schema.
+3. Map each case to the applicable requirement identifier.
+4. When extracted document requirements are supplied, use the exact REQ-* identifier from the supplied document requirements in requirement_id.
+5. When document requirements are supplied, populate document_requirement_ids with the applicable REQ-* identifier(s).
+6. Do not convert REQ-* identifiers into AC-* identifiers.
+7. In User Story mode, use AC-### identifiers for acceptance criteria.
+8. Use ONLY requested test types.
+9. Keep each test to 2-5 steps and 1-3 expected results.
+10. Evidence references must be taken only from the supplied document requirements or SOURCE-N context.
+11. Set topology only when explicitly provided or directly supported by evidence; otherwise return an empty string.
+12. Never emit null items inside arrays.
+13. Preserve normative strength exactly: MUST/MUST NOT/SHOULD/SHOULD NOT/MAY are not interchangeable.
+14. If no retrieved knowledge supports a detail, do not invent it.
+15. Return ONLY JSON matching the supplied schema.
 """
 
 SUITE_DESIGN_PROMPT = """Design the scenarios and complete test plan for the generated test suite below.
